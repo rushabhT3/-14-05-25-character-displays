@@ -9,7 +9,7 @@ A React application for exploring Rick and Morty characters with proper componen
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/your-repo.git
+   git clone https://github.com/rushabhT3/-14-05-25-character-displays.git
    ```
 
 2. **Navigate to the project directory:**
