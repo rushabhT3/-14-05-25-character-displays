@@ -1,63 +1,28 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./HomePage.module.css";
+import CharacterGrid from "../components/HomePage/CharacterGrid";
+import PaginationControls from "../components/HomePage/PaginationControls";
+import FilterPanel from "../components/HomePage/FilterPanel";
+import useFilterData from "../hooks/useFilterData";
+import useFilters from "../hooks/useFilters";
 
 export default function HomePage() {
+  // Use custom hooks
+  const { locations, episodes } = useFilterData();
+  const {
+    filters,
+    showFilters,
+    handleFilterChange,
+    resetFilters,
+    setShowFilters,
+  } = useFilters();
+
   const [characters, setCharacters] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [locations, setLocations] = useState([]);
-  const [episodes, setEpisodes] = useState([]);
-  const [filters, setFilters] = useState({
-    name: "",
-    status: "",
-    species: "",
-    type: "",
-    gender: "",
-    location: "",
-    episode: "",
-  });
-  const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    const fetchAllPages = async (url) => {
-      let allResults = [];
-      let nextPage = url;
-
-      while (nextPage) {
-        const response = await axios.get(nextPage);
-        allResults = [...allResults, ...response.data.results];
-        nextPage = response.data.info.next;
-      }
-
-      return allResults;
-    };
-
-    const fetchFilterData = async () => {
-      try {
-        // Show loading state
-        setLocations([{ id: "loading", name: "Loading locations..." }]);
-        setEpisodes([{ id: "loading", name: "Loading episodes..." }]);
-
-        // Fetch all pages of location and episode data in parallel
-        const [allLocations, allEpisodes] = await Promise.all([
-          fetchAllPages("https://rickandmortyapi.com/api/location"),
-          fetchAllPages("https://rickandmortyapi.com/api/episode"),
-        ]);
-
-        setLocations(allLocations);
-        setEpisodes(allEpisodes);
-      } catch (error) {
-        console.error("Error loading filter data:", error);
-        setLocations([]);
-        setEpisodes([]);
-      }
-    };
-
-    fetchFilterData();
-  }, []);
-
+  // Character fetching useEffect
   useEffect(() => {
     const fetchCharacters = async () => {
       try {
@@ -129,9 +94,9 @@ export default function HomePage() {
             // If we already filtered by location, we need to find the intersection
             if (filters.location) {
               // Get the current filtered IDs from the URL
-              const currentIds = url.split("/").pop().split(",");
 
               // Find characters that exist in both filters
+              const currentIds = url.split("/").pop().split(",");
               const intersectionIds = characterIds.filter((id) =>
                 currentIds.includes(id)
               );
@@ -160,7 +125,7 @@ export default function HomePage() {
         // Make the API request with the constructed URL and parameters
         const response = await axios.get(url, {
           params: Object.fromEntries(
-            Object.entries(params).filter(([_, v]) => v)
+            Object.entries(params).filter(([, v]) => v) // destructuring like _, v
           ),
         });
 
@@ -220,21 +185,15 @@ export default function HomePage() {
     fetchCharacters();
   }, [page, filters, locations, episodes]);
 
-  const handleFilterChange = (e) => {
-    setFilters((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  // Modified handler to include page reset
+  const handleFilterChangeWithReset = (e) => {
+    handleFilterChange(e);
     setPage(1);
   };
 
-  const resetFilters = () => {
-    setFilters({
-      name: "",
-      status: "",
-      species: "",
-      type: "",
-      gender: "",
-      location: "",
-      episode: "",
-    });
+  // Modified reset to include page reset
+  const handleResetFilters = () => {
+    resetFilters();
     setPage(1);
   };
 
@@ -246,7 +205,7 @@ export default function HomePage() {
           placeholder="Search by name..."
           name="name"
           value={filters.name}
-          onChange={handleFilterChange}
+          onChange={handleFilterChangeWithReset}
         />
         <button onClick={() => setShowFilters(!showFilters)}>
           {showFilters ? "Hide Filters" : "Show Filters"}
@@ -254,129 +213,26 @@ export default function HomePage() {
       </div>
 
       {showFilters && (
-        <div className={styles.filterPanel}>
-          <select
-            name="status"
-            value={filters.status}
-            onChange={handleFilterChange}
-          >
-            <option value="">All Statuses</option>
-            <option value="alive">Alive</option>
-            <option value="dead">Dead</option>
-            <option value="unknown">Unknown</option>
-          </select>
-
-          <select
-            name="gender"
-            value={filters.gender}
-            onChange={handleFilterChange}
-          >
-            <option value="">All Genders</option>
-            <option value="female">Female</option>
-            <option value="male">Male</option>
-            <option value="genderless">Genderless</option>
-            <option value="unknown">Unknown</option>
-          </select>
-
-          <select
-            name="location"
-            value={filters.location}
-            onChange={handleFilterChange}
-            disabled={locations.length === 1 && locations[0].id === "loading"}
-          >
-            <option value="">All Locations</option>
-            {locations.length > 0 && locations[0].id !== "loading" ? (
-              locations.map((location) => (
-                <option key={location.id} value={location.name}>
-                  {location.name} ({location.type})
-                </option>
-              ))
-            ) : (
-              <option value="">Loading locations...</option>
-            )}
-          </select>
-
-          <select
-            name="episode"
-            value={filters.episode}
-            onChange={handleFilterChange}
-            disabled={episodes.length === 1 && episodes[0].id === "loading"}
-          >
-            <option value="">All Episodes</option>
-            {episodes.length > 0 && episodes[0].id !== "loading" ? (
-              episodes.map((episode) => (
-                <option key={episode.id} value={episode.episode}>
-                  {episode.episode} - {episode.name}
-                </option>
-              ))
-            ) : (
-              <option value="">Loading episodes...</option>
-            )}
-          </select>
-
-          <input
-            type="text"
-            placeholder="Species"
-            name="species"
-            value={filters.species}
-            onChange={handleFilterChange}
-          />
-
-          <input
-            type="text"
-            placeholder="Type"
-            name="type"
-            value={filters.type}
-            onChange={handleFilterChange}
-          />
-
-          <button onClick={resetFilters}>Reset Filters</button>
-        </div>
+        <FilterPanel
+          filters={filters}
+          locations={locations}
+          episodes={episodes}
+          onFilterChange={handleFilterChangeWithReset}
+          onReset={handleResetFilters}
+        />
       )}
 
-      <div className={styles.grid}>
-        {characters.length > 0 ? (
-          characters.map((char) => (
-            <Link
-              to={`/character/${char.id}`}
-              key={char.id}
-              className={styles.card}
-            >
-              <img src={char.image} alt={char.name} />
-              <h3>{char.name}</h3>
-              <p>
-                {char.species} ({char.status})
-              </p>
-              <p>📍 {char.location.name}</p>
-            </Link>
-          ))
-        ) : (
-          <div className={styles.noResults}>
-            {(locations.length === 1 && locations[0].id === "loading") ||
-            (episodes.length === 1 && episodes[0].id === "loading")
-              ? "Loading filter data..."
-              : "No characters found matching your criteria"}
-          </div>
-        )}
-      </div>
+      <CharacterGrid
+        characters={characters}
+        locations={locations}
+        episodes={episodes}
+      />
 
-      <div className={styles.pagination}>
-        <button
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page === 1}
-        >
-          Previous
-        </button>
-        <span>
-          Page {page} of {Math.max(1, totalPages)}
-        </span>
-        <button
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          disabled={page === totalPages || totalPages === 0}
-        >
-          Next
-        </button>
-      </div>
+      <PaginationControls
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
     </div>
   );
 }
