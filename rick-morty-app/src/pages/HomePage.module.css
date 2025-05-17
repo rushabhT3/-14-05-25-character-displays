@@ -142,7 +142,6 @@
     font-size: 16px;
   }
   
-  /* Make regular button match the style */
   .searchBar > button {
     padding: 10px 20px;
     background-color: #4CAF50;
