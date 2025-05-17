@@ -101,3 +101,59 @@
     font-size: 1.2rem;
     color: #666;
   }
+
+  .searchBar {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin: 20px 0;
+  }
+  
+  .navButton {
+    padding: 10px 20px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .navButton:hover {
+    background-color: #1976D2;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+  }
+  
+  /* Add icon pseudo-elements */
+  .navButton[href="/locations"]::before {
+    content: "🌍";
+    font-size: 16px;
+  }
+  
+  .navButton[href="/episodes"]::before {
+    content: "🎬";
+    font-size: 16px;
+  }
+  
+  /* Make regular button match the style */
+  .searchBar > button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .searchBar > button:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+  }

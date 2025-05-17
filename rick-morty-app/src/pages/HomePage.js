@@ -6,6 +6,7 @@ import PaginationControls from "../components/HomePage/PaginationControls";
 import FilterPanel from "../components/HomePage/FilterPanel";
 import useFilterData from "../hooks/useFilterData";
 import useFilters from "../hooks/useFilters";
+import { Link } from 'react-router-dom';
 
 export default function HomePage() {
   // Use custom hooks
@@ -210,6 +211,13 @@ export default function HomePage() {
         <button onClick={() => setShowFilters(!showFilters)}>
           {showFilters ? "Hide Filters" : "Show Filters"}
         </button>
+
+        <Link to="/locations" className={styles.navButton}>
+          Locations
+        </Link>
+        <Link to="/episodes" className={styles.navButton}>
+          Episodes
+        </Link>
       </div>
 
       {showFilters && (
