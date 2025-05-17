@@ -15,7 +15,7 @@ A React application for exploring Rick and Morty characters with proper componen
 
    ```bash
    git clone https://github.com/rushabhT3/-14-05-25-character-displays.git
-````
+   ```
 
 2. **Navigate to the project directory:**
 
@@ -48,5 +48,3 @@ A React application for exploring Rick and Morty characters with proper componen
   ```bash
   npm lint
   ```
-
-```
